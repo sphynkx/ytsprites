@@ -20,11 +20,6 @@ RUN pip3.12 install --upgrade pip && \
 
 COPY . .
 
-RUN chmod +x run.sh proto/gen_proto.sh
-
-# Generate Protobuf stubs inside the container
-RUN ./proto/gen_proto.sh
-
 # Expose the gRPC port (matches config default)
 EXPOSE 60051
 
