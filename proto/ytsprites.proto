@@ -1,0 +1,91 @@
+// Client↔service protocol for generating sprites and WebVTT.
+// Package: ytsprites.v1
+// Basic idea:
+// - Submit: submit the entire video file (bytes), file identifier (video_id), and parameters.
+// - WatchStatus: stream statuses by job_id.
+// - GetResult: get results (1+ sprite binaries with names, as well as WebVTT as text).
+// - Cancel: cancel the task.
+
+syntax = "proto3";
+
+package ytsprites.v1;
+
+enum JobState {
+  JOB_STATE_UNSPECIFIED = 0;
+  JOB_STATE_SUBMITTED = 1;
+  JOB_STATE_QUEUED = 2;
+  JOB_STATE_PROCESSING = 3;
+  JOB_STATE_DONE = 4;
+  JOB_STATE_FAILED = 5;
+  JOB_STATE_CANCELED = 6;
+}
+
+message SpriteOptions {
+  double step_sec = 1;
+  int32 cols = 2;
+  int32 rows = 3;
+  string format = 4;
+  int32 quality = 5;
+}
+
+message SubmitRequest {
+  string video_id = 1;
+  bytes video_bytes = 2;
+  string video_mime = 3;
+  SpriteOptions options = 4;
+}
+
+message SubmitReply {
+  string job_id = 1;
+  bool accepted = 2;
+  int32 queue_position = 3;
+}
+
+message StatusRequest {
+  string job_id = 1;
+}
+
+message StatusUpdate {
+  string job_id = 1;
+  JobState state = 2;
+  int32 percent = 3;
+  string message = 4;
+}
+
+message GetResultRequest {
+  string job_id = 1;
+}
+
+message SpriteBin {
+  string name = 1;
+  bytes data = 2;
+}
+
+message ResultReply {
+  string job_id = 1;
+  repeated SpriteBin sprites = 2;
+  string vtt = 3;
+  string video_id = 4;
+}
+
+message CancelRequest {
+  string job_id = 1;
+}
+
+message CancelReply {
+  string job_id = 1;
+  bool canceled = 2;
+}
+
+message HealthRequest {}
+message HealthReply {
+  string status = 1;
+}
+
+service Sprites {
+  rpc Submit(SubmitRequest) returns (SubmitReply);
+  rpc WatchStatus(StatusRequest) returns (stream StatusUpdate);
+  rpc GetResult(GetResultRequest) returns (ResultReply);
+  rpc Cancel(CancelRequest) returns (CancelReply);
+  rpc Health(HealthRequest) returns (HealthReply);
+}
