@@ -1,0 +1,19 @@
+[Unit]
+Description=ytsprites Service
+After=network.target
+
+[Service]
+User=root
+Group=root
+
+WorkingDirectory=/opt/ytsprites
+
+ExecStart=/opt/ytsprites/.venv/bin/python /opt/ytsprites/main.py
+
+Environment=PYTHONUNBUFFERED=1
+
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
