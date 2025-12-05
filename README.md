@@ -59,6 +59,9 @@ journalctl -u ytsprites -f
 As above:
 ```bash
 git clone https://github.com/sphynkx/ytsprites
+```
+and: 
+```bash
 cd ytsprites/install/docker
 docker-compose up -d --build
 docker-compose logs -f
