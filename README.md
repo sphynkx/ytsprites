@@ -53,3 +53,11 @@ cp install/ytsprites.service /etc/systemd/system/
 systemctl enable --now ytsprites
 journalctl -u ytsprites -f
 ```
+
+
+## Run via docker
+```bash
+cd install/docker
+docker-compose up -d --build
+docker-compose logs -f
+```
