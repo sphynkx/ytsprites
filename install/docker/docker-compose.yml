@@ -1,0 +1,20 @@
+services:
+  ytsprites:
+    build:
+      context: ../../
+      dockerfile: install/docker/Dockerfile
+    image: ytsprites:fedora-latest
+    container_name: ytsprites_service
+    environment:
+      - PYTHONUNBUFFERED=1
+      - GRPC_PORT=60051
+      - MAX_WORKERS=2
+      - TMP_DIR=/app/tmp_work
+    ports:
+      - "60051:60051"
+    volumes:
+      - ytsprites_tmp:/app/tmp_work
+    restart: unless-stopped
+
+volumes:
+  ytsprites_tmp:
