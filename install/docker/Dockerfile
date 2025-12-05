@@ -8,11 +8,8 @@ RUN dnf install -y https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-rele
 
 RUN dnf install -y \
     python3.12 \
-    python3.12-devel \
     python3-pip \
-    gcc \
     ffmpeg \
-    ffmpeg-devel \
     && dnf clean all
 
 WORKDIR /app
@@ -23,10 +20,10 @@ RUN pip3.12 install --upgrade pip && \
 
 COPY . .
 
-RUN chmod +x run.sh install/gen_proto.sh
+RUN chmod +x run.sh proto/gen_proto.sh
 
 # Generate Protobuf stubs inside the container
-RUN ./install/gen_proto.sh
+RUN ./proto/gen_proto.sh
 
 # Expose the gRPC port (matches config default)
 EXPOSE 60051
