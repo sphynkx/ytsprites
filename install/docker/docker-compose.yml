@@ -3,7 +3,7 @@ services:
     build:
       context: ../../
       dockerfile: install/docker/Dockerfile
-    image: ytsprites:fedora-latest
+    image: ytsprites:fedora-prod
     container_name: ytsprites_service
     environment:
       - PYTHONUNBUFFERED=1
