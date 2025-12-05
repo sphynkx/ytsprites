@@ -21,35 +21,36 @@ def worker_loop(worker_id):
         try:
             job.update_status(JobState.JOB_STATE_PROCESSING, 0, "Starting...")
             
-            workspace = files_ut.create_job_workspace(job.job_id)
-            job.temp_dir_path = workspace
+            # Use created workspace
+            workspace = job.temp_dir_path
+            video_path = job.video_file_path
             
-            # Save the video (assuming it's already loaded into job memory or transferred somehow)
-            # In the current prototype, video_bytes are received in Submit.
-            # In a real implementation, it's better to stream to a temporary file directly in the handler,
-            # but since Submit is a Unary, the bytes are in the handler's memory.
-            # We need to pass them here. We'll work on this in the handler (save to disk BEFORE the queue).            
+            if not workspace or not video_path or not os.path.exists(video_path):
+                 raise FileNotFoundError("Video file or workspace lost")
 
-            video_path = os.path.join(workspace, f"input_video")
-            # Asume that file is available already (see handlers_srv)
-            
             def on_progress(pct, msg):
+                # Canceling check
                 if job.state == JobState.JOB_STATE_CANCELED:
                     raise InterruptedError("Job canceled")
                 job.update_status(JobState.JOB_STATE_PROCESSING, pct, msg)
 
             # Run processing
-            sprites_files, vtt_text = ffmpeg_ut.process_video(
+            # Returns list of abs paths and vtt text
+            sprite_files_abs, vtt_text = ffmpeg_ut.process_video(
                 video_path, workspace, job.options, on_progress
             )
             
             # Gather results
             sprites_data = []
-            for fname in sprites_files:
-                full_path = os.path.join(workspace, fname)
-                if os.path.exists(full_path):
-                    with open(full_path, 'rb') as f:
-                        sprites_data.append((fname, f.read()))
+            for abs_path in sprite_files_abs:
+                if os.path.exists(abs_path):
+                    # Sprites filenames for client w/o paths!!
+                    name = os.path.basename(abs_path)
+                    with open(abs_path, 'rb') as f:
+                        data = f.read()
+                    sprites_data.append((name, data))
+                else:
+                    print(f"[Worker-{worker_id}] Warning: Result file not found {abs_path}")
             
             job.result = JobResult(
                 sprites=sprites_data,
@@ -58,15 +59,18 @@ def worker_loop(worker_id):
             )
             
             job.update_status(JobState.JOB_STATE_DONE, 100, "Done")
-            print(f"[Worker-{worker_id}] Job {job.job_id} DONE")
+            print(f"[Worker-{worker_id}] Job {job.job_id} DONE. Generated {len(sprites_data)} sprites.")
             
         except InterruptedError:
-            print(f"[Worker-{worker_id}] Job {job.job_id} CANCELED during processing")
+            print(f"[Worker-{worker_id}] Job {job.job_id} CANCELED")
             # Status is CANCELED already
         except Exception as e:
             print(f"[Worker-{worker_id}] Job {job.job_id} FAILED: {e}")
+            import traceback
+            traceback.print_exc()
             job.update_status(JobState.JOB_STATE_FAILED, 0, str(e))
         finally:
+            # Clean temps
             if workspace:
                 files_ut.cleanup_workspace(workspace)
 
