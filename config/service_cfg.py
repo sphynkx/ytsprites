@@ -15,9 +15,9 @@ class Config:
     TMP_DIR = os.getenv('TMP_DIR', None) 
     
     # Defaults for generation
-    DEFAULT_STEP_SEC = 10.0
-    DEFAULT_COLS = 5
-    DEFAULT_ROWS = 5
+    DEFAULT_STEP_SEC = 2.0
+    DEFAULT_COLS = 10
+    DEFAULT_ROWS = 10
     DEFAULT_FORMAT = 'jpg'
     DEFAULT_QUALITY = 70
 

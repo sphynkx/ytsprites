@@ -4,6 +4,7 @@ import subprocess
 import shutil
 from typing import List, Tuple, Optional
 from PIL import Image
+from config.service_cfg import cfg
 
 DEFAULT_TILE_W = 160
 DEFAULT_TILE_H = 90
@@ -194,9 +195,9 @@ def process_video(video_path: str, workspace: str, options, progress_cb) -> Tupl
     
     print(f"[SOURCE OK] path={video_path} size={size_bytes} dims={w0}x{h0} dur={dur}")
     
-    interval = options.step_sec if options.step_sec > 0 else 10.0
-    cols = options.cols if options.cols > 0 else 5
-    rows = options.rows if options.rows > 0 else 5
+    interval = options.step_sec if options.step_sec > 0 else cfg.DEFAULT_STEP_SEC
+    cols = options.cols if options.cols > 0 else cfg.DEFAULT_COLS
+    rows = options.rows if options.rows > 0 else cfg.DEFAULT_ROWS
     tile_w = DEFAULT_TILE_W
     tile_h = DEFAULT_TILE_H
     
