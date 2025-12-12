@@ -1,7 +1,10 @@
 import logging
 from concurrent import futures
 import grpc
+from grpc_reflection.v1alpha import reflection
+
 from config.service_cfg import cfg
+from proto import ytsprites_pb2
 from proto import ytsprites_pb2_grpc
 from .handlers_srv import SpritesService
 
@@ -19,6 +22,13 @@ def serve():
         options=options
     )
     ytsprites_pb2_grpc.add_SpritesServicer_to_server(SpritesService(), server)
+
+    # Reflections
+    service_names = (
+        ytsprites_pb2.DESCRIPTOR.services_by_name['Sprites'].full_name,
+        reflection.SERVICE_NAME,
+    )
+    reflection.enable_server_reflection(service_names, server)
     
     address = f'[::]:{cfg.GRPC_PORT}'
     server.add_insecure_port(address)

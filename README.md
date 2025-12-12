@@ -55,6 +55,15 @@ journalctl -u ytsprites -f
 ```
 
 
+## Test
+Health check/show methods via reflections:
+```bash
+dnf -y install grpcurl
+grpcurl -plaintext 127.0.0.1:60051 list
+grpcurl -plaintext 127.0.0.1:60051 list ytsprites.v1.Sprites
+```
+
+
 ## Run via docker
 As above:
 ```bash
