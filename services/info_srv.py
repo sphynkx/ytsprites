@@ -12,7 +12,7 @@ class InfoService(info_pb2_grpc.InfoServicer):
     def All(self, request, context):
         uptime = time.time() - self.start_time
         response = info_pb2.InfoResponse(
-            app_name="YTSprites-srv",
+            app_name="YurTube Sprites Generation Service",
             instance_id=self.instance_id,
             host=self.host,
             version="1.0.0",
