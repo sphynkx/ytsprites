@@ -1,5 +1,6 @@
 grpcio
 grpcio-tools
+grpcio-reflection
+grpcio-health-checking
 protobuf
 Pillow
-grpcio-reflection
