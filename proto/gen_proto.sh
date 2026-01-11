@@ -2,7 +2,7 @@
 set -euo pipefail
 
 # Generate stubs from ytsprites.proto
-# Make sure that ytsprites.proto is identical to one from ytsprites service!!
+# Make sure that ytsprites.proto is identical to one from yurtube service!!
 
 cd "$(dirname "$0")"
 
