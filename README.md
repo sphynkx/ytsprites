@@ -59,8 +59,8 @@ journalctl -u ytsprites -f
 Health check/show methods via reflections:
 ```bash
 dnf -y install grpcurl
-grpcurl -plaintext 127.0.0.1:60051 list
-grpcurl -plaintext 127.0.0.1:60051 list ytsprites.v1.Sprites
+grpcurl -plaintext 127.0.0.1:9094 list
+grpcurl -plaintext 127.0.0.1:9094 list ytsprites.v1.Sprites
 ```
 
 
