@@ -3,7 +3,7 @@ import tempfile
 
 class Config:
     # gRPC settings
-    GRPC_PORT = int(os.getenv('GRPC_PORT', 60051))
+    GRPC_PORT = int(os.getenv('GRPC_PORT', 9094))
     MAX_WORKERS = int(os.getenv('MAX_WORKERS', 2))
     
     # Runtime limits
