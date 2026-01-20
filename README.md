@@ -46,7 +46,11 @@ cd proto
 ./gen_proto.sh
 cd ..
 ```
-
+Optionally create `.env` with your actual host and port:
+```conf
+HOST=<host IP>
+PORT=<port>
+```
 Configure and run as systemd service.
 ```bash
 cp install/ytsprites.service /etc/systemd/system/
@@ -68,10 +72,16 @@ grpcurl -plaintext 127.0.0.1:9094 list ytsprites.v1.Sprites
 As above:
 ```bash
 git clone https://github.com/sphynkx/ytsprites
+cd ytsprites
 ```
-and: 
+Create `.env` with your actual host and port:
+```conf
+HOST=<IP of docker host>
+PORT=<port>
+```
+Then: 
 ```bash
-cd ytsprites/install/docker
+cd install/docker
 docker-compose up -d --build
 docker-compose logs -f
 ```
