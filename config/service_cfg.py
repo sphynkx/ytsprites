@@ -1,9 +1,14 @@
 import os
 import tempfile
+from dotenv import load_dotenv
+
+load_dotenv()
 
 class Config:
     # gRPC settings
-    GRPC_PORT = int(os.getenv('GRPC_PORT', 9094))
+    ##GRPC_PORT = int(os.getenv('GRPC_PORT', 9094))
+    GRPC_PORT = int(os.getenv("PORT", 9094))
+    GRPC_HOST = os.getenv("HOST", "0.0.0.0")
     MAX_WORKERS = int(os.getenv('MAX_WORKERS', 2))
     
     # Runtime limits

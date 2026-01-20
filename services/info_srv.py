@@ -7,7 +7,8 @@ class InfoService(info_pb2_grpc.InfoServicer):
     def __init__(self):
         self.start_time = time.time()
         self.instance_id = socket.gethostname()
-        self.host = f"{socket.gethostbyname(socket.gethostname())}:{cfg.GRPC_PORT}"
+        ##self.host = f"{socket.gethostbyname(socket.gethostname())}:{cfg.GRPC_PORT}"
+        self.host = f"{cfg.GRPC_HOST}:{cfg.GRPC_PORT}"
 
     def All(self, request, context):
         uptime = time.time() - self.start_time

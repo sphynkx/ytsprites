@@ -7,11 +7,11 @@ services:
     container_name: ytsprites_service
     environment:
       - PYTHONUNBUFFERED=1
-      - GRPC_PORT=60051
+      - GRPC_PORT=9094
       - MAX_WORKERS=4
       - TMP_DIR=/app/tmp_work
     ports:
-      - "60051:60051"
+      - "9094:9094"
     volumes:
       - ytsprites_tmp:/app/tmp_work
     restart: unless-stopped

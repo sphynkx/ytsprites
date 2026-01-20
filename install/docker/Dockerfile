@@ -21,6 +21,6 @@ RUN pip3.12 install --upgrade pip && \
 COPY . .
 
 # Expose the gRPC port (matches config default)
-EXPOSE 60051
+EXPOSE 9094
 
 CMD ["python3.12", "main.py"]
