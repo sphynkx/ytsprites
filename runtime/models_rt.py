@@ -15,19 +15,32 @@ class Job:
     video_id: str
     video_mime: str
     options: SpriteOptions
-    
-    # Int paths
+
+    # Optional meta
+    filename: str = ""
+
+    # Internal paths
     temp_dir_path: Optional[str] = None
-    video_file_path: Optional[str] = None
-    
+    source_file_path: Optional[str] = None  # uploaded bytes spool file
+
+    # Upload tracking
+    bytes_received: int = 0
+    upload_done: bool = False
+    upload_started_at: float = 0.0
+    upload_finished_at: float = 0.0
+
     # State
     state: int = JobState.JOB_STATE_SUBMITTED
     percent: int = 0
     message: str = ""
-    
-    # Save result in mem or links to files untill GetResult or timeout
+
+    # Processing timing (optional)
+    processing_started_at: float = 0.0
+    processing_finished_at: float = 0.0
+
+    # Save result in mem or links to files until GetResult or timeout
     result: Optional[JobResult] = None
-    
+
     created_at: float = field(default_factory=time.time)
     updated_at: float = field(default_factory=time.time)
 

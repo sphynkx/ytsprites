@@ -24,39 +24,43 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x0fytsprites.proto\x12\x0cytsprites.v1\"^\n\rSpriteOptions\x12\x10\n\x08step_sec\x18\x01 \x01(\x01\x12\x0c\n\x04\x63ols\x18\x02 \x01(\x05\x12\x0c\n\x04rows\x18\x03 \x01(\x05\x12\x0e\n\x06\x66ormat\x18\x04 \x01(\t\x12\x0f\n\x07quality\x18\x05 \x01(\x05\"x\n\rSubmitRequest\x12\x10\n\x08video_id\x18\x01 \x01(\t\x12\x13\n\x0bvideo_bytes\x18\x02 \x01(\x0c\x12\x12\n\nvideo_mime\x18\x03 \x01(\t\x12,\n\x07options\x18\x04 \x01(\x0b\x32\x1b.ytsprites.v1.SpriteOptions\"G\n\x0bSubmitReply\x12\x0e\n\x06job_id\x18\x01 \x01(\t\x12\x10\n\x08\x61\x63\x63\x65pted\x18\x02 \x01(\x08\x12\x16\n\x0equeue_position\x18\x03 \x01(\x05\"\x1f\n\rStatusRequest\x12\x0e\n\x06job_id\x18\x01 \x01(\t\"g\n\x0cStatusUpdate\x12\x0e\n\x06job_id\x18\x01 \x01(\t\x12%\n\x05state\x18\x02 \x01(\x0e\x32\x16.ytsprites.v1.JobState\x12\x0f\n\x07percent\x18\x03 \x01(\x05\x12\x0f\n\x07message\x18\x04 \x01(\t\"\"\n\x10GetResultRequest\x12\x0e\n\x06job_id\x18\x01 \x01(\t\"\'\n\tSpriteBin\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x0c\n\x04\x64\x61ta\x18\x02 \x01(\x0c\"f\n\x0bResultReply\x12\x0e\n\x06job_id\x18\x01 \x01(\t\x12(\n\x07sprites\x18\x02 \x03(\x0b\x32\x17.ytsprites.v1.SpriteBin\x12\x0b\n\x03vtt\x18\x03 \x01(\t\x12\x10\n\x08video_id\x18\x04 \x01(\t\"\x1f\n\rCancelRequest\x12\x0e\n\x06job_id\x18\x01 \x01(\t\"/\n\x0b\x43\x61ncelReply\x12\x0e\n\x06job_id\x18\x01 \x01(\t\x12\x10\n\x08\x63\x61nceled\x18\x02 \x01(\x08\"\x0f\n\rHealthRequest\"\x1d\n\x0bHealthReply\x12\x0e\n\x06status\x18\x01 \x01(\t*\xb0\x01\n\x08JobState\x12\x19\n\x15JOB_STATE_UNSPECIFIED\x10\x00\x12\x17\n\x13JOB_STATE_SUBMITTED\x10\x01\x12\x14\n\x10JOB_STATE_QUEUED\x10\x02\x12\x18\n\x14JOB_STATE_PROCESSING\x10\x03\x12\x12\n\x0eJOB_STATE_DONE\x10\x04\x12\x14\n\x10JOB_STATE_FAILED\x10\x05\x12\x16\n\x12JOB_STATE_CANCELED\x10\x06\x32\xe1\x02\n\x07Sprites\x12@\n\x06Submit\x12\x1b.ytsprites.v1.SubmitRequest\x1a\x19.ytsprites.v1.SubmitReply\x12H\n\x0bWatchStatus\x12\x1b.ytsprites.v1.StatusRequest\x1a\x1a.ytsprites.v1.StatusUpdate0\x01\x12\x46\n\tGetResult\x12\x1e.ytsprites.v1.GetResultRequest\x1a\x19.ytsprites.v1.ResultReply\x12@\n\x06\x43\x61ncel\x12\x1b.ytsprites.v1.CancelRequest\x1a\x19.ytsprites.v1.CancelReply\x12@\n\x06Health\x12\x1b.ytsprites.v1.HealthRequest\x1a\x19.ytsprites.v1.HealthReplyb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x0fytsprites.proto\x12\x0cytsprites.v1\"^\n\rSpriteOptions\x12\x10\n\x08step_sec\x18\x01 \x01(\x01\x12\x0c\n\x04\x63ols\x18\x02 \x01(\x05\x12\x0c\n\x04rows\x18\x03 \x01(\x05\x12\x0e\n\x06\x66ormat\x18\x04 \x01(\t\x12\x0f\n\x07quality\x18\x05 \x01(\x05\"x\n\x10\x43reateJobRequest\x12\x10\n\x08video_id\x18\x01 \x01(\t\x12\x10\n\x08\x66ilename\x18\x02 \x01(\t\x12\x12\n\nvideo_mime\x18\x03 \x01(\t\x12,\n\x07options\x18\x04 \x01(\x0b\x32\x1b.ytsprites.v1.SpriteOptions\"C\n\x0e\x43reateJobReply\x12\x0e\n\x06job_id\x18\x01 \x01(\t\x12\x10\n\x08\x61\x63\x63\x65pted\x18\x02 \x01(\x08\x12\x0f\n\x07message\x18\x03 \x01(\t\"I\n\x0bUploadChunk\x12\x0e\n\x06job_id\x18\x01 \x01(\t\x12\x0e\n\x06offset\x18\x02 \x01(\x03\x12\x0c\n\x04\x64\x61ta\x18\x03 \x01(\x0c\x12\x0c\n\x04last\x18\x04 \x01(\x08\"X\n\x0bUploadReply\x12\x0e\n\x06job_id\x18\x01 \x01(\t\x12\x10\n\x08\x61\x63\x63\x65pted\x18\x02 \x01(\x08\x12\x0f\n\x07message\x18\x03 \x01(\t\x12\x16\n\x0e\x62ytes_received\x18\x04 \x01(\x03\"\x1f\n\rStatusRequest\x12\x0e\n\x06job_id\x18\x01 \x01(\t\"g\n\x0cStatusUpdate\x12\x0e\n\x06job_id\x18\x01 \x01(\t\x12%\n\x05state\x18\x02 \x01(\x0e\x32\x16.ytsprites.v1.JobState\x12\x0f\n\x07percent\x18\x03 \x01(\x05\x12\x0f\n\x07message\x18\x04 \x01(\t\"\"\n\x10GetResultRequest\x12\x0e\n\x06job_id\x18\x01 \x01(\t\"\'\n\tSpriteBin\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x0c\n\x04\x64\x61ta\x18\x02 \x01(\x0c\"f\n\x0bResultReply\x12\x0e\n\x06job_id\x18\x01 \x01(\t\x12(\n\x07sprites\x18\x02 \x03(\x0b\x32\x17.ytsprites.v1.SpriteBin\x12\x0b\n\x03vtt\x18\x03 \x01(\t\x12\x10\n\x08video_id\x18\x04 \x01(\t\"\x1f\n\rCancelRequest\x12\x0e\n\x06job_id\x18\x01 \x01(\t\"/\n\x0b\x43\x61ncelReply\x12\x0e\n\x06job_id\x18\x01 \x01(\t\x12\x10\n\x08\x63\x61nceled\x18\x02 \x01(\x08\"\x0f\n\rHealthRequest\"\x1d\n\x0bHealthReply\x12\x0e\n\x06status\x18\x01 \x01(\t*\xb0\x01\n\x08JobState\x12\x19\n\x15JOB_STATE_UNSPECIFIED\x10\x00\x12\x17\n\x13JOB_STATE_SUBMITTED\x10\x01\x12\x14\n\x10JOB_STATE_QUEUED\x10\x02\x12\x18\n\x14JOB_STATE_PROCESSING\x10\x03\x12\x12\n\x0eJOB_STATE_DONE\x10\x04\x12\x14\n\x10JOB_STATE_FAILED\x10\x05\x12\x16\n\x12JOB_STATE_CANCELED\x10\x06\x32\xb2\x03\n\x07Sprites\x12I\n\tCreateJob\x12\x1e.ytsprites.v1.CreateJobRequest\x1a\x1c.ytsprites.v1.CreateJobReply\x12\x46\n\x0cUploadSource\x12\x19.ytsprites.v1.UploadChunk\x1a\x19.ytsprites.v1.UploadReply(\x01\x12H\n\x0bWatchStatus\x12\x1b.ytsprites.v1.StatusRequest\x1a\x1a.ytsprites.v1.StatusUpdate0\x01\x12\x46\n\tGetResult\x12\x1e.ytsprites.v1.GetResultRequest\x1a\x19.ytsprites.v1.ResultReply\x12@\n\x06\x43\x61ncel\x12\x1b.ytsprites.v1.CancelRequest\x1a\x19.ytsprites.v1.CancelReply\x12@\n\x06Health\x12\x1b.ytsprites.v1.HealthRequest\x1a\x19.ytsprites.v1.HealthReplyb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'ytsprites_pb2', _globals)
 if not _descriptor._USE_C_DESCRIPTORS:
   DESCRIPTOR._loaded_options = None
-  _globals['_JOBSTATE']._serialized_start=774
-  _globals['_JOBSTATE']._serialized_end=950
+  _globals['_JOBSTATE']._serialized_start=935
+  _globals['_JOBSTATE']._serialized_end=1111
   _globals['_SPRITEOPTIONS']._serialized_start=33
   _globals['_SPRITEOPTIONS']._serialized_end=127
-  _globals['_SUBMITREQUEST']._serialized_start=129
-  _globals['_SUBMITREQUEST']._serialized_end=249
-  _globals['_SUBMITREPLY']._serialized_start=251
-  _globals['_SUBMITREPLY']._serialized_end=322
-  _globals['_STATUSREQUEST']._serialized_start=324
-  _globals['_STATUSREQUEST']._serialized_end=355
-  _globals['_STATUSUPDATE']._serialized_start=357
-  _globals['_STATUSUPDATE']._serialized_end=460
-  _globals['_GETRESULTREQUEST']._serialized_start=462
-  _globals['_GETRESULTREQUEST']._serialized_end=496
-  _globals['_SPRITEBIN']._serialized_start=498
-  _globals['_SPRITEBIN']._serialized_end=537
-  _globals['_RESULTREPLY']._serialized_start=539
-  _globals['_RESULTREPLY']._serialized_end=641
-  _globals['_CANCELREQUEST']._serialized_start=643
-  _globals['_CANCELREQUEST']._serialized_end=674
-  _globals['_CANCELREPLY']._serialized_start=676
-  _globals['_CANCELREPLY']._serialized_end=723
-  _globals['_HEALTHREQUEST']._serialized_start=725
-  _globals['_HEALTHREQUEST']._serialized_end=740
-  _globals['_HEALTHREPLY']._serialized_start=742
-  _globals['_HEALTHREPLY']._serialized_end=771
-  _globals['_SPRITES']._serialized_start=953
-  _globals['_SPRITES']._serialized_end=1306
+  _globals['_CREATEJOBREQUEST']._serialized_start=129
+  _globals['_CREATEJOBREQUEST']._serialized_end=249
+  _globals['_CREATEJOBREPLY']._serialized_start=251
+  _globals['_CREATEJOBREPLY']._serialized_end=318
+  _globals['_UPLOADCHUNK']._serialized_start=320
+  _globals['_UPLOADCHUNK']._serialized_end=393
+  _globals['_UPLOADREPLY']._serialized_start=395
+  _globals['_UPLOADREPLY']._serialized_end=483
+  _globals['_STATUSREQUEST']._serialized_start=485
+  _globals['_STATUSREQUEST']._serialized_end=516
+  _globals['_STATUSUPDATE']._serialized_start=518
+  _globals['_STATUSUPDATE']._serialized_end=621
+  _globals['_GETRESULTREQUEST']._serialized_start=623
+  _globals['_GETRESULTREQUEST']._serialized_end=657
+  _globals['_SPRITEBIN']._serialized_start=659
+  _globals['_SPRITEBIN']._serialized_end=698
+  _globals['_RESULTREPLY']._serialized_start=700
+  _globals['_RESULTREPLY']._serialized_end=802
+  _globals['_CANCELREQUEST']._serialized_start=804
+  _globals['_CANCELREQUEST']._serialized_end=835
+  _globals['_CANCELREPLY']._serialized_start=837
+  _globals['_CANCELREPLY']._serialized_end=884
+  _globals['_HEALTHREQUEST']._serialized_start=886
+  _globals['_HEALTHREQUEST']._serialized_end=901
+  _globals['_HEALTHREPLY']._serialized_start=903
+  _globals['_HEALTHREPLY']._serialized_end=932
+  _globals['_SPRITES']._serialized_start=1114
+  _globals['_SPRITES']._serialized_end=1548
 # @@protoc_insertion_point(module_scope)

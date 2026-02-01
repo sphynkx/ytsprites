@@ -1,9 +1,11 @@
 // Client↔service protocol for generating sprites and WebVTT.
 // Package: ytsprites.v1
-// Basic idea:
-// - Submit: submit the entire video file (bytes), file identifier (video_id), and parameters.
+//
+// New flow (no whole-file bytes in memory):
+// - CreateJob: creates a job_id with options/meta (no data).
+// - UploadSource: client-streaming upload of the video bytes (chunked).
 // - WatchStatus: stream statuses by job_id.
-// - GetResult: get results (1+ sprite binaries with names, as well as WebVTT as text).
+// - GetResult: get results (sprite binaries + WebVTT).
 // - Cancel: cancel the task.
 
 syntax = "proto3";
@@ -28,17 +30,31 @@ message SpriteOptions {
   int32 quality = 5;
 }
 
-message SubmitRequest {
+message CreateJobRequest {
   string video_id = 1;
-  bytes video_bytes = 2;
-  string video_mime = 3;
+  string filename = 2;    // optional (e.g. original.webm)
+  string video_mime = 3;  // optional
   SpriteOptions options = 4;
 }
 
-message SubmitReply {
+message CreateJobReply {
   string job_id = 1;
   bool accepted = 2;
-  int32 queue_position = 3;
+  string message = 3;
+}
+
+message UploadChunk {
+  string job_id = 1;
+  int64 offset = 2;
+  bytes data = 3;
+  bool last = 4;
+}
+
+message UploadReply {
+  string job_id = 1;
+  bool accepted = 2;
+  string message = 3;
+  int64 bytes_received = 4;
 }
 
 message StatusRequest {
@@ -83,7 +99,9 @@ message HealthReply {
 }
 
 service Sprites {
-  rpc Submit(SubmitRequest) returns (SubmitReply);
+  rpc CreateJob(CreateJobRequest) returns (CreateJobReply);
+  rpc UploadSource(stream UploadChunk) returns (UploadReply);
+
   rpc WatchStatus(StatusRequest) returns (stream StatusUpdate);
   rpc GetResult(GetResultRequest) returns (ResultReply);
   rpc Cancel(CancelRequest) returns (CancelReply);
