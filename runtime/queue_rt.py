@@ -3,12 +3,16 @@ import threading
 import time
 import uuid
 from collections import deque
-from typing import Dict, Optional
+from typing import Dict, Optional, Tuple
 
 from config.service_cfg import cfg
 from proto.ytsprites_pb2 import JobState, SourceRef, OutputRef
 from utils import files_ut
 from .models_rt import Job
+
+
+def _norm_rel(p: str) -> str:
+    return (p or "").strip().replace("\\", "/").lstrip("/")
 
 
 class JobManager:
@@ -17,6 +21,20 @@ class JobManager:
         self._queue: deque = deque()
         self._max_queue = max_queue
         self._lock = threading.RLock()
+
+        # Dedupe index: (video_id, source_rel, out_base) -> job_id
+        self._active_by_key: Dict[Tuple[str, str, str], str] = {}
+
+    def _dedupe_key(
+        self,
+        *,
+        video_id: str,
+        source: Optional[SourceRef],
+        output: Optional[OutputRef],
+    ) -> Tuple[str, str, str]:
+        src_rel = _norm_rel(source.rel_path) if source else ""
+        out_base = _norm_rel(output.base_rel_dir) if output else ""
+        return (str(video_id or ""), src_rel, out_base)
 
     def create_job(
         self,
@@ -31,6 +49,19 @@ class JobManager:
         with self._lock:
             if len(self._jobs) >= self._max_queue * 3:
                 return None
+
+            # --- Dedupe: one active job per (video_id, source_rel, out_base) ---
+            key = self._dedupe_key(video_id=video_id, source=source, output=output)
+            existing_id = self._active_by_key.get(key)
+            if existing_id:
+                j = self._jobs.get(existing_id)
+                if j and j.state not in (JobState.JOB_STATE_DONE, JobState.JOB_STATE_FAILED, JobState.JOB_STATE_CANCELED):
+                    return existing_id
+                # stale index
+                try:
+                    del self._active_by_key[key]
+                except Exception:
+                    pass
 
             job_id = str(uuid.uuid4())
             job = Job(
@@ -51,7 +82,10 @@ class JobManager:
             job.update_status(JobState.JOB_STATE_SUBMITTED, 0, "Created")
             self._jobs[job_id] = job
 
-            # New protocol: we can enqueue immediately (no UploadSource)
+            # store dedupe mapping
+            self._active_by_key[key] = job_id
+
+            # New protocol: enqueue immediately (no UploadSource)
             job.update_status(JobState.JOB_STATE_QUEUED, 0, "Queued")
             self._queue.append(job_id)
 
@@ -81,27 +115,57 @@ class JobManager:
                 return False
 
             job.update_status(JobState.JOB_STATE_CANCELED, job.percent, "Canceled by user")
+
+            # cleanup temp dir best-effort
             if job.temp_dir_path:
                 files_ut.cleanup_workspace(job.temp_dir_path)
+
+            # drop dedupe key
+            try:
+                key = self._dedupe_key(video_id=job.video_id, source=job.source, output=job.output)
+                if self._active_by_key.get(key) == job_id:
+                    del self._active_by_key[key]
+            except Exception:
+                pass
+
             return True
 
     def cleanup_expired(self, ttl_sec: int) -> int:
+        """
+        Cleanup non-processing jobs that have been inactive (updated_at) longer than ttl_sec.
+        """
         now = time.time()
         removed = 0
         with self._lock:
             to_delete = []
             for job_id, job in self._jobs.items():
-                if job.state in (JobState.JOB_STATE_PROCESSING,):
+                # never delete active processing jobs
+                if job.state == JobState.JOB_STATE_PROCESSING:
                     continue
-                age = now - job.created_at
+
+                # TTL by last activity, not by creation time
+                age = now - float(getattr(job, "updated_at", job.created_at) or job.created_at)
                 if age >= ttl_sec:
                     to_delete.append(job_id)
 
             for job_id in to_delete:
                 job = self._jobs.pop(job_id, None)
+                if not job:
+                    continue
                 removed += 1
-                if job and job.temp_dir_path:
+
+                # remove from dedupe index if still mapped
+                try:
+                    key = self._dedupe_key(video_id=job.video_id, source=job.source, output=job.output)
+                    if self._active_by_key.get(key) == job_id:
+                        del self._active_by_key[key]
+                except Exception:
+                    pass
+
+                if job.temp_dir_path:
                     files_ut.cleanup_workspace(job.temp_dir_path)
+
+                # remove from queue if present
                 try:
                     while True:
                         self._queue.remove(job_id)
