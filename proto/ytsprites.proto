@@ -1,12 +1,15 @@
 // Client↔service protocol for generating sprites and WebVTT.
 // Package: ytsprites.v1
 //
-// New flow (no whole-file bytes in memory):
-// - CreateJob: creates a job_id with options/meta (no data).
-// - UploadSource: client-streaming upload of the video bytes (chunked).
+// New flow (storage-driven; no video bytes transfer via yurtube):
+// - CreateJob: create job with source reference (storage + rel_path) and output location.
 // - WatchStatus: stream statuses by job_id.
-// - GetResult: get results (sprite binaries + WebVTT).
+// - GetResult: returns output paths (VTT + sprite images) and stats.
 // - Cancel: cancel the task.
+//
+// Notes:
+// - The service itself talks to ytstorage (driver abstraction stays inside ytstorage).
+// - ytsprites writes results to ytstorage (no sprite binaries in the reply).
 
 syntax = "proto3";
 
@@ -23,18 +26,43 @@ enum JobState {
 }
 
 message SpriteOptions {
-  double step_sec = 1;
+  double step_sec = 1; // capture interval
   int32 cols = 2;
   int32 rows = 3;
-  string format = 4;
-  int32 quality = 5;
+  string format = 4;   // "jpg" (default)
+  int32 quality = 5;   // 1..100
+}
+
+// Reference to a ytstorage instance.
+// (Security/allowlist validation can be added later.)
+message StorageRef {
+  string address = 1; // "192.168.7.3:9092"
+  bool tls = 2;       // future
+  string token = 3;   // optional now
+}
+
+// Source to read the original video from.
+message SourceRef {
+  StorageRef storage = 1;
+  string rel_path = 2; // e.g. "RV/RV1Ni5_JBlFs/original.webm"
+}
+
+// Destination where ytsprites will write generated artifacts.
+message OutputRef {
+  StorageRef storage = 1;     // usually same as source.storage
+  string base_rel_dir = 2;    // e.g. "RV/RV1Ni5_JBlFs"
+  string sprites_rel_dir = 3; // optional override, default "sprites"
+  string vtt_name = 4;        // optional, default "sprites.vtt"
 }
 
 message CreateJobRequest {
   string video_id = 1;
-  string filename = 2;    // optional (e.g. original.webm)
+  string filename = 2;    // optional
   string video_mime = 3;  // optional
   SpriteOptions options = 4;
+
+  SourceRef source = 10;
+  OutputRef output = 11;
 }
 
 message CreateJobReply {
@@ -43,20 +71,7 @@ message CreateJobReply {
   string message = 3;
 }
 
-message UploadChunk {
-  string job_id = 1;
-  int64 offset = 2;
-  bytes data = 3;
-  bool last = 4;
-}
-
-message UploadReply {
-  string job_id = 1;
-  bool accepted = 2;
-  string message = 3;
-  int64 bytes_received = 4;
-}
-
+// Status streaming
 message StatusRequest {
   string job_id = 1;
 }
@@ -64,26 +79,38 @@ message StatusRequest {
 message StatusUpdate {
   string job_id = 1;
   JobState state = 2;
-  int32 percent = 3;
-  string message = 4;
+  int32 percent = 3;     // 0..100, -1 unknown
+  string message = 4;    // human-readable
+  int64 bytes_processed = 5; // optional (e.g. bytes read/written)
 }
 
+// Result
 message GetResultRequest {
   string job_id = 1;
 }
 
-message SpriteBin {
-  string name = 1;
-  bytes data = 2;
+message ArtifactRef {
+  string rel_path = 1;   // storage rel path (rooted at bucket/root)
+  string name = 2;       // optional display name
+  int64 size_bytes = 3;  // optional
 }
 
 message ResultReply {
   string job_id = 1;
-  repeated SpriteBin sprites = 2;
-  string vtt = 3;
-  string video_id = 4;
+  string video_id = 2;
+
+  JobState state = 3;    // should be DONE/FAILED/CANCELED
+  string message = 4;    // error or summary
+
+  ArtifactRef vtt = 10;
+  repeated ArtifactRef sprites = 11;
+
+  int32 sprites_count = 20;
+  int64 total_sprite_bytes = 21;
+  double seconds = 22;   // processing time
 }
 
+// Cancel
 message CancelRequest {
   string job_id = 1;
 }
@@ -96,12 +123,11 @@ message CancelReply {
 message HealthRequest {}
 message HealthReply {
   string status = 1;
+  string version = 2;
 }
 
 service Sprites {
   rpc CreateJob(CreateJobRequest) returns (CreateJobReply);
-  rpc UploadSource(stream UploadChunk) returns (UploadReply);
-
   rpc WatchStatus(StatusRequest) returns (stream StatusUpdate);
   rpc GetResult(GetResultRequest) returns (ResultReply);
   rpc Cancel(CancelRequest) returns (CancelReply);

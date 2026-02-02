@@ -39,11 +39,6 @@ class SpritesStub(object):
                 request_serializer=ytsprites__pb2.CreateJobRequest.SerializeToString,
                 response_deserializer=ytsprites__pb2.CreateJobReply.FromString,
                 _registered_method=True)
-        self.UploadSource = channel.stream_unary(
-                '/ytsprites.v1.Sprites/UploadSource',
-                request_serializer=ytsprites__pb2.UploadChunk.SerializeToString,
-                response_deserializer=ytsprites__pb2.UploadReply.FromString,
-                _registered_method=True)
         self.WatchStatus = channel.unary_stream(
                 '/ytsprites.v1.Sprites/WatchStatus',
                 request_serializer=ytsprites__pb2.StatusRequest.SerializeToString,
@@ -70,12 +65,6 @@ class SpritesServicer(object):
     """Missing associated documentation comment in .proto file."""
 
     def CreateJob(self, request, context):
-        """Missing associated documentation comment in .proto file."""
-        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
-        context.set_details('Method not implemented!')
-        raise NotImplementedError('Method not implemented!')
-
-    def UploadSource(self, request_iterator, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -112,11 +101,6 @@ def add_SpritesServicer_to_server(servicer, server):
                     servicer.CreateJob,
                     request_deserializer=ytsprites__pb2.CreateJobRequest.FromString,
                     response_serializer=ytsprites__pb2.CreateJobReply.SerializeToString,
-            ),
-            'UploadSource': grpc.stream_unary_rpc_method_handler(
-                    servicer.UploadSource,
-                    request_deserializer=ytsprites__pb2.UploadChunk.FromString,
-                    response_serializer=ytsprites__pb2.UploadReply.SerializeToString,
             ),
             'WatchStatus': grpc.unary_stream_rpc_method_handler(
                     servicer.WatchStatus,
@@ -166,33 +150,6 @@ class Sprites(object):
             '/ytsprites.v1.Sprites/CreateJob',
             ytsprites__pb2.CreateJobRequest.SerializeToString,
             ytsprites__pb2.CreateJobReply.FromString,
-            options,
-            channel_credentials,
-            insecure,
-            call_credentials,
-            compression,
-            wait_for_ready,
-            timeout,
-            metadata,
-            _registered_method=True)
-
-    @staticmethod
-    def UploadSource(request_iterator,
-            target,
-            options=(),
-            channel_credentials=None,
-            call_credentials=None,
-            insecure=False,
-            compression=None,
-            wait_for_ready=None,
-            timeout=None,
-            metadata=None):
-        return grpc.experimental.stream_unary(
-            request_iterator,
-            target,
-            '/ytsprites.v1.Sprites/UploadSource',
-            ytsprites__pb2.UploadChunk.SerializeToString,
-            ytsprites__pb2.UploadReply.FromString,
             options,
             channel_credentials,
             insecure,
