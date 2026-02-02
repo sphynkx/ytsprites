@@ -1,50 +1,58 @@
 import time
 from dataclasses import dataclass, field
 from typing import List, Optional
-from proto.ytsprites_pb2 import JobState, SpriteOptions
+
+from proto.ytsprites_pb2 import JobState, SpriteOptions, SourceRef, OutputRef, ArtifactRef
+
 
 @dataclass
 class JobResult:
-    sprites: List[tuple]
-    vtt_content: str
     video_id: str
+    state: int
+    message: str
+
+    vtt: Optional[ArtifactRef] = None
+    sprites: List[ArtifactRef] = field(default_factory=list)
+
+    sprites_count: int = 0
+    total_sprite_bytes: int = 0
+    seconds: float = 0.0
+
 
 @dataclass
 class Job:
     job_id: str
     video_id: str
-    video_mime: str
     options: SpriteOptions
 
     # Optional meta
     filename: str = ""
+    video_mime: str = ""
+
+    # Storage-driven I/O refs
+    source: Optional[SourceRef] = None
+    output: Optional[OutputRef] = None
 
     # Internal paths
     temp_dir_path: Optional[str] = None
-    source_file_path: Optional[str] = None  # uploaded bytes spool file
-
-    # Upload tracking
-    bytes_received: int = 0
-    upload_done: bool = False
-    upload_started_at: float = 0.0
-    upload_finished_at: float = 0.0
+    source_file_path: Optional[str] = None  # local downloaded source.bin
 
     # State
     state: int = JobState.JOB_STATE_SUBMITTED
     percent: int = 0
     message: str = ""
 
-    # Processing timing (optional)
+    bytes_processed: int = 0
+
     processing_started_at: float = 0.0
     processing_finished_at: float = 0.0
 
-    # Save result in mem or links to files until GetResult or timeout
     result: Optional[JobResult] = None
 
     created_at: float = field(default_factory=time.time)
     updated_at: float = field(default_factory=time.time)
 
-    def update_status(self, state, percent, msg=""):
+    def update_status(self, state: int, percent: int, msg: str = "") -> None:
         self.state = state
         self.percent = percent
         self.message = msg
